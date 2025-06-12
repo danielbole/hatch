@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: hatch
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # app:
+  #   build: .
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     DB_NAME: hatch
+  #     DB_USER: user
+  #     DB_PASSWORD: password
+  #     DB_HOST: localhost
+  #     DB_PORT: 5432
+
+volumes:
+  pgdata:

@@ -1,0 +1,7 @@
+pydantic
+phonenumbers
+pydantic-extra-types
+fastapi
+sqlmodel
+httpx
+httpx_retries
