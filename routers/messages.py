@@ -1,7 +1,6 @@
 from asyncio import sleep
-from datetime import datetime
+from datetime import datetime, timezone
 import httpx
-
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -128,14 +127,12 @@ async def send_message(message: MessageBase, session: Session = Depends(get_sess
                 await sleep(0.25 * 2 ** attempt)
         
         if response.status_code == 200:
-            print(f"Message sent successfully: {response.json()}")
-
             if message.conversation_id is None:
                 conversation = Conversation(
                     user_id=message.user_id,
                     contact_id=message.contact_id,
                     type=conversation_type,
-                    started_at=datetime.utcnow()
+                    started_at=datetime.now(timezone.utc)
                 )
                 session.add(conversation)
                 session.commit()
@@ -146,7 +143,7 @@ async def send_message(message: MessageBase, session: Session = Depends(get_sess
             session.add(db_message)
             session.commit()
             session.refresh(db_message)
-            return [db_message, outgoing.dict(), response.json()]
+            return [db_message, outgoing.model_dump(), response.json()]
         else:
             raise HTTPException(status_code=response.status_code, detail=f"Failed to send message: {response.text}")
     except httpx.RequestError as e:

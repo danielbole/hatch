@@ -1,7 +1,7 @@
 pydantic
 phonenumbers
 pydantic-extra-types
-fastapi
+fastapi[standard]
 sqlmodel
 httpx
-httpx_retries
+psycopg2-binary
