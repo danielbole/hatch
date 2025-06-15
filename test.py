@@ -1,9 +1,51 @@
 import httpx
 import json
 
+import psycopg2
+
+drop_tables = """
+DO $$ DECLARE
+    r RECORD;
+BEGIN
+    -- if the schema you operate on is not "current", you will want to
+    -- replace current_schema() in query with 'schematodeletetablesfrom'
+    -- *and* update the generate 'DROP...' accordingly.
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
+        EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
+    END LOOP;
+END $$;
+"""
+# Connect to the database
+conn_params = {
+    'host': 'localhost',
+    'database': 'hatch',
+    'user': 'user',
+    'password': 'password'
+}
+
+try:
+    # Establish a connection
+    conn = psycopg2.connect(**conn_params)
+
+    # Create a cursor object
+    cur = conn.cursor()
+
+    # Execute a query
+    cur.execute(drop_tables)
+    
+    # Close the cursor and connection
+    cur.close()
+    conn.commit()
+    print("All tables dropped successfully.")
+    conn.close()
+
+except psycopg2.Error as e:
+    print(f"Error connecting to or querying the database: {e}")
+
+
 user_url = "http://127.0.0.1:8000/users/"
 contacts_url = "http://127.0.0.1:8000/contacts/"
-recive_url = 'http://127.0.0.1:8000/messages/receive/text'
+recive_url = 'http://127.0.0.1:8000/messages/receive'
 send_url = 'http://127.0.0.1:8000/messages/send'
 
 users = []
